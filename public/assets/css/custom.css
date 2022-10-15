@@ -1,0 +1,162 @@
+.j_priority {
+    height: 36px !important;
+    padding-top: 9px !important;
+}
+#items li a{
+    text-decoration: none;
+    color: grey;
+}
+.outerDivFull {
+    margin: 50px;
+}
+
+.switchToggle input[type=checkbox] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+    position: absolute;
+}
+
+.switchToggle label {
+    cursor: pointer;
+    text-indent: -9999px;
+    width: 70px;
+    max-width: 70px;
+    height: 30px;
+    background: #d1d1d1;
+    display: block;
+    border-radius: 100px;
+    position: relative;
+}
+
+.switchToggle label:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 90px;
+    transition: 0.3s;
+}
+
+.switchToggle input:checked+label,
+.switchToggle input:checked+input+label {
+    background: #3e98d3;
+}
+
+.switchToggle input+label:before,
+.switchToggle input+input+label:before {
+    content: 'No';
+    position: absolute;
+    top: 3px;
+    left: 35px;
+    width: 26px;
+    height: 26px;
+    border-radius: 90px;
+    transition: 0.3s;
+    text-indent: 0;
+    color: #fff;
+}
+
+.switchToggle input:checked+label:before,
+.switchToggle input:checked+input+label:before {
+    content: 'Yes';
+    position: absolute;
+    top: 3px;
+    left: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 90px;
+    transition: 0.3s;
+    text-indent: 0;
+    color: #fff;
+}
+
+.switchToggle input:checked+label:after,
+.switchToggle input:checked+input+label:after {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+}
+
+.switchToggle label:active:after {
+    width: 60px;
+}
+
+.toggle-switchArea {
+    margin: 10px 0 10px 0;
+}
+
+/*# sourceMappingURL=custom.min.css.map */
+.add-jb{
+    position: relative;
+}
+.myul{
+    position: absolute;
+    background: #fff !important;
+    width: 100%;
+    z-index: 99;
+    padding: 10px 0px;
+    max-height: 350px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+}
+.myul li{
+    list-style-type: none;
+    display: block;
+    /* background-color: #fff; */
+    margin-bottom: 2px;
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: rgb(248, 248, 248);
+}
+
+/* .myul li:last-child{
+    margin-bottom: 0px !important;
+} */
+.myul li a{
+    color: rgb(135, 135, 135);
+    font-size: 16px;
+    font-weight: 500;
+}
+.jd-inner-text{
+    padding: 0px;
+    position: relative;
+}
+.jd-inner-text h5{
+    font-size: 14px;
+    color: #aaa;
+
+}
+.jd-inner-text::before{
+    position: absolute;
+    content: '';
+    left: -5%;
+    bottom: -10px;
+    height: 1px;
+    width: 110%;
+    background: #ddd;
+}
+.searching{
+    font-size: 12px;
+    margin-left: 10px !important;
+}
+.card-radio .form-check-input:checked +.form-label-question-custom  {
+    background-color: #405189 !important;
+    color: #e2e5ef !important;
+  }
+  
+  .card-radio .form-check-input:checked+.form-label-question-custom:before {
+    content: "";
+    font-family: "remixicon";
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    font-size: 16px;
+    color: #e2e5ef !important;
+  }
+  .card-radio .form-check-input:checked + .form-check-label .button_custom {
+    color: #fff !important;
+  }
