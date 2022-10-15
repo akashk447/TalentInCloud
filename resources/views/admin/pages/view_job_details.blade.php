@@ -1255,9 +1255,9 @@
                                                         @endif
                                                     @endforeach
                                                     <li class="nav-item active">
-                                                        <a class="nav-link ps-1" data-bs-toggle="tab" href="#sourced_tab"
+                                                        <a class="nav-link ps-1" data-bs-toggle="tab" href="#sourced_tab" $get_valid_job
                                                             role="tab" aria-selected="false"> Sourced <span
-                                                                class="badge bg-primary rounded-circle">{{ $total_sourced }}</span>
+                                                                class="badge bg-primary rounded-circle">{{isset($filter)?$total_sourced:get_total_sourced_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php
@@ -1277,7 +1277,7 @@
                                                         <a class="nav-link ps-1" data-bs-toggle="tab"
                                                             href="#attempted_tab" role="tab" aria-selected="false">
                                                             Attempted <span
-                                                                class="badge bg-secondary rounded-circle">{{ $total_attempted }}</span>
+                                                                class="badge bg-secondary rounded-circle">{{isset($filter)?$total_attempted:get_total_attempted_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php
@@ -1294,7 +1294,7 @@
                                                         <a class="nav-link ps-1" data-bs-toggle="tab"
                                                             href="#call_later_tab" role="tab" aria-selected="false">
                                                             Call Later <span
-                                                                class="badge bg-success rounded-circle">{{ $total_call_later }}</span>
+                                                                class="badge bg-success rounded-circle">{{isset($filter)?$total_call_later:get_total_call_later_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php
@@ -1318,7 +1318,7 @@
                                                             href="#not_interested_tab" role="tab"
                                                             aria-selected="true">
                                                             Not Interested <span
-                                                                class="badge bg-danger rounded-circle">{{ $total_not_interested }}</span>
+                                                                class="badge bg-danger rounded-circle">{{isset($filter)?$total_not_interested:get_total_not_interested_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php
@@ -1335,7 +1335,7 @@
                                                         <a class="nav-link ps-1  " data-bs-toggle="tab"
                                                             href="#interested_tab" role="tab" aria-selected="true">
                                                             Interested <span
-                                                                class="badge bg-warning rounded-circle">{{ $total_interested }}</span>
+                                                                class="badge bg-warning rounded-circle">{{isset($filter)?$total_interested:get_total_interested_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php
@@ -1352,7 +1352,7 @@
                                                         <a class="nav-link ps-1  " data-bs-toggle="tab"
                                                             href="#submitted_tab" role="tab" aria-selected="true">
                                                             Submitted <span
-                                                                class="badge bg-info rounded-circle">{{ $total_submited }}</span>
+                                                                class="badge bg-info rounded-circle">{{isset($filter)?$total_submited:get_total_submited_candidate($get_valid_job->job_id) }}</span>
                                                         </a>
                                                     </li>
                                                     @php

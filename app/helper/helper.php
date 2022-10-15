@@ -658,4 +658,46 @@ function get_single_choice_option($question_id){
                  ->get();
     return $get_options;
 }
+function get_total_sourced_candidate($job_id){
+    $get_all_sourced_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->where('screen_status',"Sourced")
+                                  ->count();
+    return $get_all_sourced_candidates;
+}
+function get_total_attempted_candidate($job_id){
+    $get_all_attempted_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->whereIn('screen_status',["Not Reachable","Call Wait","Switch Off","No Response"])
+                                  ->count();
+    return $get_all_attempted_candidates;
+}
+function get_total_call_later_candidate($job_id){
+    $get_all_call_later_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->whereIn('screen_status',["Call Later"])
+                                  ->count();
+    return $get_all_call_later_candidates;
+}
+function get_total_not_interested_candidate($job_id){
+    $get_all_not_interested_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->whereIn('screen_status',["Not-Interested","Dropped","Profile Incorrect","Wrong No","Received By Others","Not In Service"])
+                                  ->count();
+    return $get_all_not_interested_candidates;
+}
+function get_total_interested_candidate($job_id){
+    $get_all_interested_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->whereIn('screen_status',["Interested But Cv Update Required","Interested But Cv Pending","Interested Confirmation Awaited"])
+                                  ->count();
+    return $get_all_interested_candidates;
+}
+function get_total_submited_candidate($job_id){
+    $get_all_interested_candidates = TicCandidateScreening::where('cloud_id',Auth::user()->cloud_id)
+                                  ->where('job_id',$job_id)
+                                  ->whereIn('screen_status',["Submitted To Quality","Quality Rejected","Quality Duplicate","Quality Approved"])
+                                  ->count();
+    return $get_all_interested_candidates;
+}
 ?>
