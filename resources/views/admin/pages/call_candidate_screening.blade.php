@@ -56,8 +56,6 @@
                     <div class="card" id="hide_previous_resume">
                         @if ($get_screen_details->candidate_resume == '' || $get_screen_details->candidate_resume == null)
                             <div class="card-body">
-
-
                                 <div class="text-center">
                                     <img src="{{ asset('assets/robot gif/1.gif') }}" alt="" class="img-fluid "
                                         width="50%">
@@ -72,8 +70,6 @@
                                         <button type="button" class="d-none" id="upload_ajax_resume">dasd</button>
                                     </form>
                                 </div>
-
-
                             </div>
                         @else
                             <div class="card-body">
@@ -88,31 +84,209 @@
                                         src="{{ asset('candidate_resumes') }}/{{ $get_screen_details->candidate_resume }}"
                                         width="100%" height="775px"></iframe>
                                 @endif
+                                <div class=" d-flex align-items-center justify-content-center mt-2">
+                                    <div class="bd-highlight me-1">
+                                        <form action="{{route('update_resume_screening')}}" method="post" enctype="multipart/form-data" id="submit_update_resume">
+                                            {{ csrf_field() }}
+                                            <input type="file" class="d-none" name="update_resume_previous" id="update_resume_previous">
+                                            <input type="hidden" name="candidate_id_prev" value="{{ $get_screen_details->candidate_id }}">
+                                        <button type="button" id="update_resume_prev"
+                                            class="btn btn-primary btn-sm waves-effect waves-light"><i class="ri-upload-cloud-2-fill align-bottom me-1"></i>Update Resume</button>
+                                        </form>
+                                        </div>
+                                    
+                                    <div class="bd-highlight me-1">
+                                        <a target="_blank" id="prev_submit" href="{{asset('candidate_resumes/')}}/{{$get_screen_details->candidate_resume}}">
+                                        <button type="button"
+                                            class="btn btn-danger btn-sm waves-effect waves-light"><i class="ri-download-cloud-2-fill align-bottom me-1"></i>Download Resume</button>
+                                        </a>
+                                    </div>
+                                    
+                                </div>
                             </div>
                         @endif
+                    </div>
+                    <div class="card d-none" id="loader" style="height: 300px;">
+                              <div class="spinner-border text-dark m-auto " role="status" >
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <span class="position-absolute" style="left: 39%;top:60%">Uploading... Please Wait !!</span>
                     </div>
                     <div class="card d-none" id="show_ajax_resume">
                         <div class="card-body">
                             <iframe id="new_ajax_resume"
-                                src="https://view.officeapps.live.com/op/embed.aspx?src={{ asset('candidate_resumes') }}/{{ $get_screen_details->candidate_resume }}"
                                 width="100%" height="775px"></iframe>
-
+                                <div class=" d-flex align-items-center justify-content-center mt-2">
+                                    <div class="bd-highlight me-1">
+                                        <form action="{{route('update_resume_screening')}}" method="post" enctype="multipart/form-data" id="submit_update_resume_ajax">
+                                            {{ csrf_field() }}
+                                            <input type="file" class="d-none" name="update_resume_submit" id="update_resume_submit">
+                                            <input type="hidden" name="candidate_id_submit" value="{{ $get_screen_details->candidate_id }}">
+                                            <button type="button" id="update_submit_resume" class="btn btn-primary btn-sm waves-effect waves-light"><i class="ri-upload-cloud-2-fill align-bottom me-1"></i>Update Resume</button>
+                                        </form>
+                                        </div>
+                                    
+                                    <div class="bd-highlight me-1">
+                                        <a target="_blank" id="update_resume_file" href="{{asset('candidate_resumes/')}}/{{$get_screen_details->candidate_resume}}">
+                                        <button type="button"
+                                            class="btn btn-danger btn-sm waves-effect waves-light"><i class="ri-download-cloud-2-fill align-bottom me-1"></i>Download Resume</button>
+                                        </a>
+                                    </div>
+                                    
+                                </div>
                         </div>
                         <input type="hidden" name="check_resume_exist" id="check_resume_exist"
                             value="{{ $get_screen_details->candidate_resume }}">
                     </div>
                     @if ($job_details->question_set_id != '' || $job_details->question_set_id != null)
-                        <div class="card">
-                            <div class="card-header align-items-center d-flex">
-                                <h4 class="card-title mb-0 flex-grow-1"><i
-                                        class=" ri-file-copy-line text-muted fs-17 align-middle"></i> Questionnaire</h4>
+                        <div class="card-body p-0 mb-2">
 
-                            </div><!-- end card header -->
+                            <div class="accordion" id="default-accordion-example">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header " id="headingOne">
+                                        <button class="accordion-button bg-white" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            <h4 class="card-title mb-0 flex-grow-1"><i
+                                                    class=" ri-file-copy-line text-muted fs-17 align-middle"></i>
+                                                Screening Questionnaire <i class="ri-download-2-line text-muted fs-17 align-middle" id="generate_questionnaire_pdf"></i></h4>
+                                            </button>
+                                            <div class="card-body">
 
-                            <div class="card-body">
-                                questionnaire is available at Questionnaire ID {{ $job_details->question_set_id }}
-                            </div> <!-- end card body -->
+                                                <p class=" text-muted fs-10 mb-0" style="text-align:justify">A crucial part of the employment hiring process is asking candidates a set of pre-screening interview questions. These questions should help you determine if the candidate might be a good fit for the open position before you call them in for an in-person interview.</p>
+                                            </div>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+                                        <div class="accordion-body" id="convert_pdf">
+                                            @php
+                                                $question_count1 = 0;
+                                            @endphp
+                                            @foreach ($get_questionnaire as $question)
+                                                @php
+                                                    $question_count1++;
+                                                @endphp
+                                                @if ($question->field_type == 'Yes/No')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600" style="font-weight: 600">Q{{ $question_count1 }}. <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                        <ol type="A" class="ms-3">
+                                                            <li>Yes</li>
+                                                            <li>No</li>
+                                                        </ol>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Confirm')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                        <ol type="A" class="ms-3" class="ms-3">
+                                                            <li>Yes</li>
+                                                            <li>No</li>
+                                                        </ol>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Single Line')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Paragraph')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Single Choice')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                        <ol type="A" class="ms-3">
+                                                            @php
+                                                                $get_single_option = get_single_choice_option($question->question_id);
+                                                            @endphp
 
+                                                            @foreach ($get_single_option as $options)
+                                                                <li>{{ $options->options }}</li>
+                                                            @endforeach
+
+                                                        </ol>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Multiple Choice')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                        <ol type="A" class="ms-3">
+                                                            @php
+                                                                $get_single_option = get_single_choice_option($question->question_id);
+                                                            @endphp
+
+                                                            @foreach ($get_single_option as $options)
+                                                                <li>{{ $options->options }}</li>
+                                                            @endforeach
+
+                                                        </ol>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Number')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Email Address')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Date')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                                @if ($question->field_type == 'Time')
+                                                    <div class="questionWrapper">
+                                                        <p class="question" style="font-weight: 600">Q{{ $question_count1 }}.
+                                                            <span class="ms-2">{{ $question->question }}</span>
+                                                            <strong><sup
+                                                                    class="text-danger">{{ $question->is_required = 'Yes' ? '*' : '' }}</sup></strong>
+                                                        </p>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     @endif
                     @if ($job_details->evaluate_attachment_name1 != '' || $job_details->evaluate_attachment_name2 != '')
@@ -130,7 +304,8 @@
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar-sm">
-                                                            <div class="avatar-title bg-light text-secondary rounded fs-24">
+                                                            <div
+                                                                class="avatar-title bg-light text-secondary rounded fs-24">
                                                                 @if (strpos($job_details->evaluate_attachment_1, '.pdf'))
                                                                     <i class="ri-file-excel-2-line"></i>
                                                                 @elseif (strpos($job_details->evaluate_attachment_1, '.doc'))
@@ -276,8 +451,8 @@
                                     <div class="mb-2">
                                         <label for="inputEmail3" class="form-label fs-11"> Name <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" class="form-control " id=" " name="candidate_name"
-                                            value="{{ $get_screen_details->candidate_name }}">
+                                        <input type="text" class="form-control " id="candidate_name"
+                                            name="candidate_name" value="{{ $get_screen_details->candidate_name }}">
 
                                     </div>
                                     <div class=" mb-2">
@@ -296,7 +471,7 @@
                                                     <span class="input-group-text" id="basic-addon1"><i
                                                             class=" ri-phone-line fs-14 text-primary"></i></span>
                                                     <input type="text" class="form-control" placeholder="Phone Number"
-                                                        aria-label="Phone Number" maxlength="10"
+                                                        aria-label="Phone Number" maxlength="10" id="candidate_phone"
                                                         aria-describedby="basic-addon1" name="candidate_phone"
                                                         value="{{ $get_screen_details->candidate_phone }}">
                                                 </div>
@@ -999,53 +1174,9 @@
                                         <div class="mb-2">
                                             <label for="inputEmail3" class="form-label fs-11">Remark Notes <span
                                                     class="text-danger">*</span></label>
-                                            <textarea class="form-control " rows="2" placeholder=" " name="remark_notes"></textarea>
+                                            <textarea class="form-control " rows="2" placeholder=" " id="remark_notes" name="remark_notes"></textarea>
                                         </div>
                                     </div>
-
-
-
-                                    {{-- <div id="centermodal" class="modal fade zoomIn" tabindex="-1"
-                                        aria-labelledby="zoomInModalLabel" aria-hidden="true" style="display: none;">
-                                        <div class="modal-dialog modal-dialog-centered">
-
-                                            <div class="modal-content">
-                                                <div class="card bg-pattern mb-0">
-                                                    <div class="modal-header bg-light p-2">
-                                                        <h4 class="modal-title ms-3" id="myCenterModalLabel">New Number
-                                                            Update</h4>
-                                                        <button type="button" class="btn-close me-3"
-                                                            data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body ms-2 me-2">
-                                                        <div class="mb-3">
-                                                            <label for="simpleinput" class="form-label fs-11">Refered By</label>
-                                                            <input type="text" id="simpleinput" class="form-control">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="simpleinput" class="form-label fs-11">Name
-                                                            </label>
-                                                            <input type="text" id="simpleinput" class="form-control">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="simpleinput" class="form-label fs-11">New Mobile
-                                                                No</label>
-                                                            <input type="text" max-length="10" id="simpleinput"
-                                                                class="form-control">
-                                                        </div>
-                                                        <div class="text-center">
-                                                            <button type="button"
-                                                                class="btn btn-outline-danger width-md waves-effect waves-light"
-                                                                data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit"
-                                                                class="btn btn-primary width-md waves-effect waves-light me-1">Save</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div> --}}
 
                             </div>
                         </div>
@@ -1053,7 +1184,7 @@
                             <div class="card-body">
                                 <div class=" d-flex align-items-center justify-content-center">
                                     <div class="bd-highlight me-1">
-                                        <button type="button"
+                                        <button type="button" disabled
                                             class="btn btn-danger btn-sm waves-effect waves-light">Re-Dail</button>
                                     </div>
 
@@ -1159,8 +1290,7 @@
 
                                                     <div class="form-check card-radio ps-2 pe-2 ">
                                                         <input id="ques_button12" name="answer{{ $question_count }}"
-                                                            type="radio" class="form-check-input"
-                                                            >
+                                                            type="radio" class="form-check-input">
                                                         <label
                                                             class="form-check-label p-1  border border-primary card-animate form-label-question-custom "
                                                             for="ques_button12">
@@ -1314,15 +1444,18 @@
                                                     <div class="col ">
 
                                                         <div class="form-check card-radio ps-2 pe-2 ">
-                                                            <input id="multiple_choice_button{{$count_options}}" name="paymentMethod" type="checkbox"
+                                                            <input id="multiple_choice_button{{ $count_options }}"
+                                                                name="paymentMethod" type="checkbox"
                                                                 class="form-check-input">
                                                             <label
                                                                 class="form-check-label p-1  border border-primary card-animate form-label-question-custom "
-                                                                for="multiple_choice_button{{$count_options}}">
-                                                                <span class="fs-16 text-muted me-2"><button type="button"
+                                                                for="multiple_choice_button{{ $count_options }}">
+                                                                <span class="fs-16 text-muted me-2"><button
+                                                                        type="button"
                                                                         class="btn btn-outline-primary button_custom btn-icon waves-effect waves-light btn-sm"><span
-                                                                            class="fs-18 font-f-R">{{$count_options}}</span></button></span>
-                                                                <span class="fs-13 text-wrap text-primary form_text button_custom">{{ $options->options }}</span>
+                                                                            class="fs-18 font-f-R">{{ $count_options }}</span></button></span>
+                                                                <span
+                                                                    class="fs-13 text-wrap text-primary form_text button_custom">{{ $options->options }}</span>
                                                             </label>
                                                         </div>
 
@@ -1832,40 +1965,29 @@
         })
 
         //show question and answer
-
+        
         $("#view_question").on("click", function() {
-            @php
-                $check_resume = get_resume_ajax($get_screen_details->candidate_id);
-            @endphp
-            if (!($('#example_select_field').val() == "")) {
-                var showallfields = document.getElementById("example_select_field").value;
-                if (showallfields == "Submitted To Quality" || showallfields ==
-                    "Submit To Quality For Other Available Jobs" || showallfields ==
-                    "Interested But Cv Update Required") {
-                    if ($('#check_resume_exist').val() == '') {
+
+            var input_status = document.getElementById("example_select_field").value;
+            var notes = $('#remark_notes').text();
+            if(input_status=='Intrested but CV Pending' || input_status=='Interested Confirmation Awaited' || input_status=='Call Later' || input_status=='Wrong No' || input_status=='Profile Incorrect' || input_status=='Not-Interested'){
+                    if(notes==""){
                         Snackbar.show({
-                            text: 'Please Upload Candidate Resume To Proceed !',
+                            text: 'Remarks Notes Is Required !',
                             pos: 'bottom-center'
                         });
-                    } else {
-
+                        $('#remark_notes').focus();
+                    }
+                    else{
                         $("#screnning_form").hide();
                         $('#screnning_question_answer').show(300);
                     }
-                } else {
-                    $("#screnning_form").hide();
-                    $('#screnning_question_answer').show(300);
-                }
-
-            } else {
-                Snackbar.show({
-                    text: 'Please Select Call Status To Continue !',
-                    pos: 'bottom-center'
-                });
+            }else if(input_status=='Submit to Quality' || input_status=='Submit to Quality for Other Available Jobs' || input_status=='Intrested but CV Update Required' || input_status=='Interested Confirmation Awaited'){
+                
             }
         });
         $("#view_question1").on("click", function(e) {
-            e.preventDefault();
+            e.preventDefault(); 
             if (!($('#example_select_field').val() == "")) {
                 var showallfields = document.getElementById("example_select_field").value;
                 if (showallfields == "Submitted To Quality" || showallfields ==
@@ -1876,6 +1998,12 @@
                             text: 'Please Upload Candidate Resume To Proceed !',
                             pos: 'bottom-center'
                         });
+                    } else if ($('#candidate_name').val() == '') {
+                        Snackbar.show({
+                            text: 'Candidate Name Is Required !',
+                            pos: 'bottom-center'
+                        });
+                        $('#candidate_name').focus();
                     } else {
                         $('#submit-form')[0].submit();
                     }
@@ -1931,6 +2059,7 @@
         //RESUME POST 
         $('#upload_ajax_resume').click(function(e) {
             // e.preventDefault();
+            $('#loader').removeClass("d-none");
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1954,14 +2083,115 @@
                         } else {
                             $('#new_ajax_resume').attr("src", "{{ asset('candidate_resumes') }}/" +
                                 response.filename);
-
+                                $('#update_resume_file').attr("href", "{{ asset('candidate_resumes') }}/" + response.filename);
                         }
                         $('#hide_previous_resume').addClass("d-none");
-                        $('#show_ajax_resume').removeClass("d-none");
+                        setTimeout(() => {
+                            $('#show_ajax_resume').removeClass("d-none");
+                            $('#loader').addClass("d-none");
+                        }, 2000);
                         $('#check_resume_exist').val(response.filename);
                     }
                 }
             });
         });
+        //update previous resume update_resume_prev
+        $('#update_resume_prev').click(function(e) {
+            e.preventDefault();
+            $('#update_resume_previous').trigger("click");
+        });
+        $('#update_resume_previous').change(function (e) { 
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            var formData = new FormData($('#submit_update_resume')[0]);
+            $.ajax({
+                type: "post",
+                url: "{{ route('update_resume_screening') }}",
+                data: formData,
+                processData: false, // tell jQuery not to process the data
+                contentType: false, // tell jQuery not to set contentType
+                success: function(response) {
+                    console.log(response)
+                    if (response.status == "success") {
+                        if (!(response.filename.indexOf(".pdf") > 0)) {
+
+                            $('#new_ajax_resume').attr("src",
+                                "https://view.officeapps.live.com/op/embed.aspx?src={{ asset('candidate_resumes') }}/" +
+                                response.filename);
+                        } else {
+                            $('#new_ajax_resume').attr("src", "{{ asset('candidate_resumes') }}/" + response.filename);
+                            $('#prev_submit').prop("href", "{{ asset('candidate_resumes') }}/" + response.filename);
+
+                        }
+                        $('#hide_previous_resume').addClass("d-none");
+                        $('#loader').removeClass("d-none");
+                        setTimeout(() => {
+                            $('#show_ajax_resume').removeClass("d-none");
+                        $('#loader').addClass("d-none");
+                        }, 2000);
+                        $('#check_resume_exist').val(response.filename);
+                    }
+                }
+            });
+            
+        });
+        //update resume update_submit_resume
+        $('#update_submit_resume').click(function(e) {
+            e.preventDefault();
+            $('#update_resume_submit').trigger("click");
+        });
+        $('#update_resume_submit').change(function (e) { 
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            var formData = new FormData($('#submit_update_resume_ajax')[0]);
+            $.ajax({
+                type: "post",
+                url: "{{ route('update_resume_screening_ajax') }}",
+                data: formData,
+                processData: false, // tell jQuery not to process the data
+                contentType: false, // tell jQuery not to set contentType
+                success: function(response) {
+                    console.log(response)
+                    if (response.status == "success") {
+                        if (!(response.filename.indexOf(".pdf") > 0)) {
+
+                            $('#new_ajax_resume').attr("src",
+                                "https://view.officeapps.live.com/op/embed.aspx?src={{ asset('candidate_resumes') }}/" +
+                                response.filename);
+                        } else {
+                            $('#new_ajax_resume').attr("src", "{{ asset('candidate_resumes') }}/" +
+                                response.filename);
+                                $('#update_resume_file').prop("href", "{{ asset('candidate_resumes') }}/" + response.filename);
+                        }
+                        $('#hide_previous_resume').addClass("d-none");
+                        $('#loader').removeClass("d-none");
+                        setTimeout(() => {
+                            $('#show_ajax_resume').removeClass("d-none");
+                        $('#loader').addClass("d-none");
+                        }, 2000);
+                        $('#check_resume_exist').val(response.filename);
+                    }
+                }
+            });
+            
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+    <script>
+        $('#generate_questionnaire_pdf').click(function() {
+            var options = {};
+            var pdf = new jsPDF('p', 'pt', 'a4');
+            pdf.addHTML($("#convert_pdf"), 15, 15, options, function() {
+                pdf.save('Screening_questionnaire.pdf');
+            });
+        });
     </script>
 @endsection
+

@@ -700,4 +700,12 @@ function get_total_submited_candidate($job_id){
                                   ->count();
     return $get_all_interested_candidates;
 }
+function get_state(){
+    $state = DB::table('z_config_city')
+                ->where('z_config_city.parent_state_id',0)
+                ->select('z_config_city.loc_id','z_config_city.loc_name')
+                ->get();
+
+    return $state;
+}
 ?>

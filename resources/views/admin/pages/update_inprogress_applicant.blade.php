@@ -258,19 +258,15 @@
                                                     <select class="form-select" name="profile_status"
                                                         id="update_candidate_status">
                                                         <option value="">Select</option>
-                                                        <option value="Reschedule Interview">Reschedule Interview
-                                                        </option>
-                                                        <option value="Availability Required">Availability Required
-                                                        </option>
-                                                        <option value="Schedule Pending">Schedule Pending</option>
+                                                        <option value="Interview Appeared">Interview Appeared</option>
+                                                        <option value="Reschedule Interview">Reschedule Interview</option>
                                                         <option value="Assessments">Assessments</option>
-                                                        <option value="Interview Appeared">Interview Appeared/Attended
-                                                        </option>
+                                                        <option value="Availability Required">Availability Required </option>
+                                                        <option value="Schedule Pending">Schedule Pending</option>
+                                                        <option value="No Show">Interview No Show</option>
+                                                        <option value="On Hold">On Hold - By Client</option>
+                                                        <option value="Did Not attend (Not Interested)">Did Not Attented (Not Interested)</option>
                                                         <option value="Update Information">Update Information</option>
-                                                        <option value="No Show">No Show</option>
-                                                        <option value="Did Not attend (Not Interested)">Did Not
-                                                            Attented</option>
-                                                        <option value="On Hold">On Hold</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -354,13 +350,13 @@
                                                             name="interview_sch_online_date"
                                                             id="in_schedule_date_check1335">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check1335">{{ date('d M', strtotime(date_tomorrow_next())) }}</label>
+                                                            for="in_schedule_date_check1335">{{ date('d M, Y', strtotime(date_tomorrow_next())) }}</label>
                                                         <input type="radio" class="btn-check "
                                                             value="{{ date_tomorrow_next_next() }}"
                                                             name="interview_sch_online_date"
                                                             id="in_schedule_date_check2336">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check2336">{{ date('d M', strtotime(date_tomorrow_next_next())) }}</label>
+                                                            for="in_schedule_date_check2336">{{ date('d M, Y', strtotime(date_tomorrow_next_next())) }}</label>
                                                         <input type="text"
                                                             class="form-control flatpickr-input active border border-primary text-primary"
                                                             data-provider="flatpickr" placeholder="Custom"
@@ -592,13 +588,13 @@
                                                             name="interview_sch_offline_date"
                                                             id="in_schedule_date_check133">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check133">{{ date('d M', strtotime(date_tomorrow_next())) }}</label>
+                                                            for="in_schedule_date_check133">{{ date('d M, Y', strtotime(date_tomorrow_next())) }}</label>
                                                         <input type="radio" class="btn-check "
                                                             value="{{ date_tomorrow_next_next() }}"
                                                             name="interview_sch_offline_date"
                                                             id="in_schedule_date_check233">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check233">{{ date('d M', strtotime(date_tomorrow_next_next())) }}</label>
+                                                            for="in_schedule_date_check233">{{ date('d M, Y', strtotime(date_tomorrow_next_next())) }}</label>
                                                         <input type="text"
                                                             class="form-control flatpickr-input active border border-primary text-primary"
                                                             data-provider="flatpickr" placeholder="Custom"
@@ -819,12 +815,12 @@
                                                             value="{{ date_tomorrow_next() }}"
                                                             name="test_initiated_date" id="in_schedule_date_check1">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check1">{{ date('d M', strtotime(date_tomorrow_next())) }}</label>
+                                                            for="in_schedule_date_check1">{{ date('d M, Y', strtotime(date_tomorrow_next())) }}</label>
                                                         <input type="radio" class="btn-check "
                                                             value="{{ date_tomorrow_next_next() }}"
                                                             name="test_initiated_date" id="in_schedule_date_check2">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check2">{{ date('d M', strtotime(date_tomorrow_next_next())) }}</label>
+                                                            for="in_schedule_date_check2">{{ date('d M, Y', strtotime(date_tomorrow_next_next())) }}</label>
                                                         <input type="text"
                                                             class="form-control flatpickr-input active border border-primary text-primary"
                                                             data-provider="flatpickr" placeholder="Custom"
@@ -998,12 +994,12 @@
                                                             value="{{ date_yesterday_prev() }}"
                                                             name="test_appeared_date" id="in_schedule_date_check11">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check11">{{ date('d M', strtotime(date_yesterday_prev())) }}</label>
+                                                            for="in_schedule_date_check11">{{ date('d M, Y', strtotime(date_yesterday_prev())) }}</label>
                                                         <input type="radio" class="btn-check "
                                                             value="{{ date_yesterday_prev_prev() }}"
                                                             name="test_appeared_date" id="in_schedule_date_check22">
                                                         <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                            for="in_schedule_date_check22">{{ date('d M', strtotime(date_yesterday_prev_prev())) }}</label>
+                                                            for="in_schedule_date_check22">{{ date('d M, Y', strtotime(date_yesterday_prev_prev())) }}</label>
                                                         <input type="text"
                                                             class="form-control flatpickr-input active border border-primary text-primary"
                                                             data-provider="flatpickr" placeholder="Custom"
@@ -1115,6 +1111,7 @@
                                                             name="test_appeared_assessment_services"
                                                             id="inputGroupSelect02" style="height:36px" disabled>
                                                             <option selected="">Select Round</option>
+                                                            <option >Custom</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -1399,14 +1396,14 @@
                                                                     id="in_schedule_date_check13353">
                                                                 <label
                                                                     class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                                    for="in_schedule_date_check13353">{{ date('d M', strtotime(date_tomorrow_next())) }}</label>
+                                                                    for="in_schedule_date_check13353">{{ date('d M, Y', strtotime(date_tomorrow_next())) }}</label>
                                                                 <input type="radio" class="btn-check "
                                                                     value="{{ date_tomorrow_next_next() }}"
                                                                     name="next_interview_sch_online_date"
                                                                     id="in_schedule_date_check23363">
                                                                 <label
                                                                     class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                                    for="in_schedule_date_check23363">{{ date('d M', strtotime(date_tomorrow_next_next())) }}</label>
+                                                                    for="in_schedule_date_check23363">{{ date('d M, Y', strtotime(date_tomorrow_next_next())) }}</label>
                                                                 <input type="text"
                                                                     class="form-control flatpickr-input active border border-primary text-primary"
                                                                     data-provider="flatpickr" placeholder="Custom"
@@ -1663,13 +1660,13 @@
                                                                     name="next_interview_sch_offline_date"
                                                                     id="in_schedule_date_check13312">
                                                                 <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                                    for="in_schedule_date_check13312">{{ date('d M', strtotime(date_tomorrow_next())) }}</label>
+                                                                    for="in_schedule_date_check13312">{{ date('d M, Y', strtotime(date_tomorrow_next())) }}</label>
                                                                 <input type="radio" class="btn-check "
                                                                     value="{{ date_tomorrow_next_next() }}"
                                                                     name="next_interview_sch_offline_date"
                                                                     id="in_schedule_date_check233212">
                                                                 <label class="j_priority btn btn-outline-primary p-2 fs-12"
-                                                                    for="in_schedule_date_check233212">{{ date('d M', strtotime(date_tomorrow_next_next())) }}</label>
+                                                                    for="in_schedule_date_check233212">{{ date('d M, Y', strtotime(date_tomorrow_next_next())) }}</label>
                                                                 <input type="text"
                                                                     class="form-control flatpickr-input active border border-primary text-primary"
                                                                     data-provider="flatpickr" placeholder="Custom"

@@ -76,5 +76,21 @@ Today Assignment
 5. Login Implementation of new login UI with Forgot Password and Reset.
 6. Merging Raman work and My work which has been completed like echo, add company modal in all online div of 5 modals.
 
+Date 16-10-2022 
+Carry Forward Work 
+1. Echo questionnaire section in Call Candidate Screening Page Submit.✅
+2. Count echo  in Tab in job.  When Searched and When Normal . ✅
+3. Configure Joining Abscond Modal in joining tab with jquery.✅
+4. All breadcumb link will be implemented till date  ✅
+
+Today Assignment 
+1. Call Candidate Screening Validation [Snackbar Validation]
+2. Call Candidate Approved Validation [Snackbar Validation]
+3. Received by others in call candidate screening page -  div show problem will be fixed .
+4. Minor Changes Searching algorythm for smart filter.
+5. Login Implementation of new login UI with Forgot Password and Reset. [If above 4 point completes , Then this will be completed by today]
 
 
+<!-- netstat -ano |findstr 3306
+Then observe the PID at last column if there is only one process running shut it down.
+taskkill /F /PID portidnumber -->

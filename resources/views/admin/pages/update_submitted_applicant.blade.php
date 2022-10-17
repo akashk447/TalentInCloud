@@ -270,22 +270,20 @@
                                                             </option>
                                                             <option value="Interview Appeared">Interview
                                                                 Appeared</option>
-                                                            <option value="Interview Rejected">Interview Rejected
-                                                            </option>
                                                             <option value="Interview Cleared">Interview Cleared
                                                             </option>
-                                                            <option value="Update Information">Update Information
+                                                            <option value="Interview Rejected">Interview Rejected
                                                             </option>
-                                                            <option value="Snoozed">Snooze</option>
-                                                            <option value="Profile Duplicate">Profile Duplicate
+                                                            <option value="Did Not attend (Not Interested)">Will Not Attend (Not Interested)
                                                             </option>
-                                                            <option value="Profile Rejected">Profile Rejected</option>
-                                                            <option value="Did Not attend (Not Interested)">Will Not
-                                                                Attend(Not
-                                                                Interested)
+                                                            <option value="Profile Duplicate">Submitted Profile Duplicate
                                                             </option>
-                                                            <option value="On Hold">On Hold</option>
+                                                            <option value="Profile Rejected">Submitted Profile Rejected</option>
+                                                            <option value="Snoozed">Snooze Applicant</option>
+                                                            <option value="On Hold">On Hold - By Client</option>
                                                             <option value="No further Action">No further Action
+                                                            </option>
+                                                            <option value="Update Information">Update Information
                                                             </option>
 
 

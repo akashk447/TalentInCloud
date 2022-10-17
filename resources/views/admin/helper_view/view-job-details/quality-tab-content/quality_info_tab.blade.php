@@ -41,7 +41,9 @@
                                             class="fw-medium link-primary"></a>
                                     </td>
                                     <td class="customer_name">
+                                        <a href="{{ route('candidate_quality_approve_check', ['appkey' => $source_candidate->applicant_key, 'jobid' => $job_id]) }}">
                                         {{ $source_candidate->candidate_name == '' || $source_candidate->candidate_name == null ? 'Anonymous' : $source_candidate->candidate_name }}
+                                    </a>
                                     </td>
                                     <td class="email">
                                         {{ $source_candidate->candidate_email == '' || $source_candidate->candidate_email == null ? 'NA' : $source_candidate->candidate_email }}

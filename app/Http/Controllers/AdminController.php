@@ -286,7 +286,7 @@ class AdminController extends Controller
             return AdminController::lock_screen();
         }
         if (Auth::check()) {
-            
+
             $add_set = TicQuestionnaireQuestionSet::updateOrCreate(
                 [
                     'question_set_name' => $tic->set_name,
@@ -318,7 +318,7 @@ class AdminController extends Controller
                     'question_set_id' => Session::get('set_id')
                 ]
             );
-            if($tic->field_type=="Yes/No" || $tic->field_type=="Confirm"){
+            if ($tic->field_type == "Yes/No" || $tic->field_type == "Confirm") {
                 $add_answer = TicQuestionnaireAnswer::create(
                     [
                         'cloud_id' => Auth::user()->cloud_id,
@@ -339,8 +339,7 @@ class AdminController extends Controller
                         'option_response' => isset($tic->answer_no) ? $tic->answer_no : ""
                     ]
                 );
-            }
-            elseif ($tic->field_type == "Single Choice" || $tic->field_type == "Multiple Choice") {
+            } elseif ($tic->field_type == "Single Choice" || $tic->field_type == "Multiple Choice") {
                 for ($i = 0; $i < count($tic->single_choices_list); $i++) {
                     $add_answer = TicQuestionnaireAnswer::create(
                         [
@@ -349,7 +348,7 @@ class AdminController extends Controller
                             'question_id' => $add_question->question_id,
                             'field_type' => $tic->field_type,
                             'options' => $tic->single_choices_list[$i],
-                            'option_response' => isset($tic->single_response[$i])?$tic->single_response[$i]:""
+                            'option_response' => isset($tic->single_response[$i]) ? $tic->single_response[$i] : ""
                         ]
                     );
                 }
@@ -540,7 +539,7 @@ class AdminController extends Controller
             if ($get_valid_job) {
                 $get_sourced_candidates = TicCandidateScreening::where('cloud_id', Auth::user()->cloud_id)
                     ->where('job_id', $get_valid_job->job_id)
-                    ->where('recruiter', Auth::user()->id)->Paginate(20)->setPath(route('view_job_details_tab',['jobid'=>$job_id,'ctab'=>'pool']));
+                    ->where('recruiter', Auth::user()->id)->Paginate(20)->setPath(route('view_job_details_tab', ['jobid' => $job_id, 'ctab' => 'pool']));
                 $get_all_job_applicants = TicCandidateApplicant::where('cloud_id', Auth::user()->cloud_id)
                     ->where('job_id', $get_valid_job->job_id)
                     ->where('recruiter', Auth::user()->id)
@@ -577,7 +576,7 @@ class AdminController extends Controller
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    
+
     public function view_pool_candidate($job_code, $screen_id, $inner_tab, $key = "")
     {
         if (Session::has('locked-screen')) {
@@ -1332,6 +1331,83 @@ class AdminController extends Controller
             'filename' => $new_file_name,
             'status' => "success",
         ]);
+    }
+    public function update_resume_screening(Request $tic)
+    {
+        if (Session::has('locked-screen')) {
+            return AdminController::lock_screen();
+        }
+        if (Auth::check()) {
+            $new_file_name = "";
+            // dd($tic);
+            if ($tic->hasFile('update_resume_previous')) {
+                $file = $tic->file('update_resume_previous');
+                $ext = $file->getClientOriginalExtension();
+                $filename = $file->getClientOriginalName();
+                $basename = basename($filename, "." . $ext);
+                $new_file_name = $basename . "_" . str_replace('-', '', today_date_reverse()) . "_" . str_replace(array(":", "am", "pm"), "", str_replace(' ', '', today_time()))  . "." . $ext;
+                $file->move(public_path('candidate_resumes'), $new_file_name);
+            }
+            $update_candidate_resume = TicCandidateMaster::where('cloud_id', Auth::user()->cloud_id)
+                ->where('candidate_id', $tic->candidate_id_prev)
+                ->update(
+                    [
+                        'candidate_resume' => $new_file_name
+                    ]
+                );
+            $update_candidate_resume = TicCandidateScreening::where('cloud_id', Auth::user()->cloud_id)
+                ->where('candidate_id', $tic->candidate_id_prev)
+                ->update(
+                    [
+                        'candidate_resume' => $new_file_name
+                    ]
+                );
+            // return with file name 
+            return response()->json([
+                'filename' => $new_file_name,
+                'status' => "success",
+            ]);
+        } else {
+            return redirect("login")->withSuccess('You are not allowed to access');
+        }
+    }
+    public function update_resume_screening_ajax(Request $tic){
+        if (Session::has('locked-screen')) {
+            return AdminController::lock_screen();
+        }
+        if (Auth::check()) {
+            $new_file_name = "";
+            // dd($tic);
+            if ($tic->hasFile('update_resume_submit')) {
+                $file = $tic->file('update_resume_submit');
+                $ext = $file->getClientOriginalExtension();
+                $filename = $file->getClientOriginalName();
+                $basename = basename($filename, "." . $ext);
+                $new_file_name = $basename . "_" . str_replace('-', '', today_date_reverse()) . "_" . str_replace(array(":", "am", "pm"), "", str_replace(' ', '', today_time()))  . "." . $ext;
+                $file->move(public_path('candidate_resumes'), $new_file_name);
+            }
+            $update_candidate_resume = TicCandidateMaster::where('cloud_id', Auth::user()->cloud_id)
+                ->where('candidate_id', $tic->candidate_id_submit)
+                ->update(
+                    [
+                        'candidate_resume' => $new_file_name
+                    ]
+                );
+            $update_candidate_resume = TicCandidateScreening::where('cloud_id', Auth::user()->cloud_id)
+                ->where('candidate_id', $tic->candidate_id_submit)
+                ->update(
+                    [
+                        'candidate_resume' => $new_file_name
+                    ]
+                );
+            // return with file name 
+            return response()->json([
+                'filename' => $new_file_name,
+                'status' => "success",
+            ]);
+        } else {
+            return redirect("login")->withSuccess('You are not allowed to access');
+        }
     }
     public function call_candidate_screening_post(Request $tic)
     {
@@ -5562,37 +5638,36 @@ class AdminController extends Controller
 
 
 
-      // |--------------------------------------------------------------------------
+    // |--------------------------------------------------------------------------
     // | Side Menu Client
     // |--------------------------------------------------------------------------
     public function organisation()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $client_details_active = Client::where('cloud_id',Auth::user()->cloud_id)->where('company_status','ACTIVE')->get();
-            $client_details_inactive = Client::where('cloud_id',Auth::user()->cloud_id)->where('company_status','INACTIVE')->get();
+        if (Auth::check()) {
+            $client_details_active = Client::where('cloud_id', Auth::user()->cloud_id)->where('company_status', 'ACTIVE')->get();
+            $client_details_inactive = Client::where('cloud_id', Auth::user()->cloud_id)->where('company_status', 'INACTIVE')->get();
             $no_of_active_company = count($client_details_active);
             $no_of_inactive_company = count($client_details_inactive);
-            return view('admin.pages.client.organisation',compact('client_details_active','client_details_inactive','no_of_active_company','no_of_inactive_company'));
-        }
-        else{
+            return view('admin.pages.client.organisation', compact('client_details_active', 'client_details_inactive', 'no_of_active_company', 'no_of_inactive_company'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function add_organisation()
     {
-        
-        $users = User::where('cloud_id',Auth::user()->cloud_id)->get();
-        return view('admin.pages.client.add_organisation',compact('users'));
+
+        $users = User::where('cloud_id', Auth::user()->cloud_id)->get();
+        return view('admin.pages.client.add_organisation', compact('users'));
     }
     public function add_organisation_post(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             //dd($request->all());
             $logo_image_name = "";
 
@@ -5616,44 +5691,42 @@ class AdminController extends Controller
                 'file' => 'File must be doc,docx,pdf,txt,rtf only allowed'
             ]);
 
-            if (request()->hasFile('logo')) {   
+            if (request()->hasFile('logo')) {
                 $file = $request->file('logo');
                 $ext = $file->getClientOriginalExtension();
                 $filename = $file->getClientOriginalName();
                 $basename = basename($filename, "." . $ext);
-                $logo_image_name = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $ext;
+                $logo_image_name = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $ext;
                 $file->move(public_path('assets/company_logo'), $logo_image_name);
             }
-            if (request()->hasFile('profile')) {    
+            if (request()->hasFile('profile')) {
                 $file = $request->file('profile');
                 $ext = $file->getClientOriginalExtension();
                 $filename = $file->getClientOriginalName();
                 $basename = basename($filename, "." . $ext);
-                $profile_image_name = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $ext;
+                $profile_image_name = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $ext;
                 $file->move(public_path('assets/profile_image'), $profile_image_name);
             }
 
-            if($request->hasFile('file')){
+            if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $file_ext = $file->getClientOriginalExtension();
-                $fileSize = $file->getSize(); 
+                $fileSize = $file->getSize();
                 $filename = $file->getClientOriginalName();
                 $file_basename = basename($filename, "." . $file_ext);
-                $agreement_file = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $file_ext;
+                $agreement_file = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $file_ext;
                 $file->move(public_path('assets/agreement_file'), $agreement_file);
             }
 
-            if($request->talent_portal == "Yes")
-            {
+            if ($request->talent_portal == "Yes") {
                 $ticket_type = $request->ticket_type;
                 $link = $request->link;
-            }
-            else{
+            } else {
                 $ticket_type = NULL;
                 $link = NULL;
             }
 
-            $client_save =Client::create(
+            $client_save = Client::create(
                 [
                     'client_name' => $request->client_name,
                     'cloud_id' => Auth::user()->cloud_id,
@@ -5673,22 +5746,22 @@ class AdminController extends Controller
                     'expiry' => $request->expiry,
                     'have_any_id' => $request->have_any_id,
                     'id_proof' => $request->id_proof,
-                    'talent_portal' =>$request->talent_portal,
+                    'talent_portal' => $request->talent_portal,
                     'ticket_type' => $ticket_type,
                     'link' => $link,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
-            if($client_save){
+            if ($client_save) {
                 $user_name = Auth::user()->name;
                 // dd($client_save->company_id);
-                if(is_null($client_save->company_id)) {
+                if (is_null($client_save->company_id)) {
                     //dd("updated code");
-                    CompanyHistory::where('company_id',$client_save->company_id)->create([
+                    CompanyHistory::where('company_id', $client_save->company_id)->create([
                         'cloud_id' => Auth::user()->cloud_id,
                         'company_id' => $client_save->company_id,
                         'user_id' => Auth::user()->id,
@@ -5700,8 +5773,7 @@ class AdminController extends Controller
                         'ip' => get_client_ip(),
                         'browser' => get_client_browser()
                     ]);
-                 }
-                 else {
+                } else {
                     //dd("created code");
                     CompanyHistory::create([
                         'cloud_id' => Auth::user()->cloud_id,
@@ -5715,7 +5787,7 @@ class AdminController extends Controller
                         'ip' => get_client_ip(),
                         'browser' => get_client_browser()
                     ]);
-                 }
+                }
 
                 CompanyAgreement::create(
                     [
@@ -5726,39 +5798,37 @@ class AdminController extends Controller
                         'agreement_file' => $agreement_file,
                         'file_size' => $fileSize,
                         'file_ext' => $file_ext,
-                        'date'=>today_date(),
-                        'time'=>today_time(),
-                        'ip'=>get_client_ip(),
-                        'browser'=>get_client_browser() 
+                        'date' => today_date(),
+                        'time' => today_time(),
+                        'ip' => get_client_ip(),
+                        'browser' => get_client_browser()
                     ]
                 );
             }
-            
-            return redirect(url('/organisation'))->with('success','Company Added Successfully.');
-        }
-        else{
+
+            return redirect(url('/organisation'))->with('success', 'Company Added Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function edit_organisation($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $company = Client::where('company_id',$id)->first();
-            return view('admin.pages.client.edit_organisation',compact('company'));
-        }
-        else{
+        if (Auth::check()) {
+            $company = Client::where('company_id', $id)->first();
+            return view('admin.pages.client.edit_organisation', compact('company'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    public function edit_organisation_post(Request $request,$id)
+    public function edit_organisation_post(Request $request, $id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             $logo_image_name = "";
 
             $profile_image_name = "";
@@ -5781,44 +5851,42 @@ class AdminController extends Controller
                 'file' => 'File must be doc,docx,pdf,txt,rtf only allowed'
             ]);
 
-            if (request()->hasFile('logo')) {   
+            if (request()->hasFile('logo')) {
                 $file = $request->file('logo');
                 $ext = $file->getClientOriginalExtension();
                 $filename = $file->getClientOriginalName();
                 $basename = basename($filename, "." . $ext);
-                $logo_image_name = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $ext;
+                $logo_image_name = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $ext;
                 $file->move(public_path('assets/company_logo'), $logo_image_name);
             }
-            if (request()->hasFile('profile')) {    
+            if (request()->hasFile('profile')) {
                 $file = $request->file('profile');
                 $ext = $file->getClientOriginalExtension();
                 $filename = $file->getClientOriginalName();
                 $basename = basename($filename, "." . $ext);
-                $profile_image_name = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $ext;
+                $profile_image_name = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $ext;
                 $file->move(public_path('assets/profile_image'), $profile_image_name);
             }
 
-            if($request->hasFile('file')){
+            if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $file_ext = $file->getClientOriginalExtension();
-                $fileSize = $file->getSize(); 
+                $fileSize = $file->getSize();
                 $filename = $file->getClientOriginalName();
                 $file_basename = basename($filename, "." . $file_ext);
-                $agreement_file = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $file_ext;
+                $agreement_file = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $file_ext;
                 $file->move(public_path('assets/agreement_file'), $agreement_file);
             }
 
-            if($request->talent_portal == "Yes")
-            {
+            if ($request->talent_portal == "Yes") {
                 $ticket_type = $request->ticket_type;
                 $link = $request->link;
-            }
-            else{
+            } else {
                 $ticket_type = NULL;
                 $link = NULL;
             }
 
-            $client_save =Client::where('company_id',$id)->update(
+            $client_save = Client::where('company_id', $id)->update(
                 [
                     'client_name' => $request->client_name,
                     'cloud_id' => Auth::user()->cloud_id,
@@ -5838,127 +5906,117 @@ class AdminController extends Controller
                     'expiry' => $request->expiry,
                     'have_any_id' => $request->have_any_id,
                     'id_proof' => $request->id_proof,
-                    'talent_portal' =>$request->talent_portal,
+                    'talent_portal' => $request->talent_portal,
                     'ticket_type' => $ticket_type,
                     'link' => $link,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
-            
 
-            return redirect(url('/organisation'))->with('success','Client Added Successfully.');
-        }
-        else{
+
+            return redirect(url('/organisation'))->with('success', 'Client Added Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function delete_organisation($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            Client::where('id',$id)->delete();
-            return back()->with('error','Client Deleted Successfully.'); 
-        }
-        else{
+        if (Auth::check()) {
+            Client::where('id', $id)->delete();
+            return back()->with('error', 'Client Deleted Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
-        }       
+        }
     }
     public function change_company_status($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             $status = Client::find($id);
-            if ( $status->company_status == "INACTIVE") {
+            if ($status->company_status == "INACTIVE") {
                 $status->company_status = "ACTIVE";
                 $status->save();
-            }
-            elseif ( $status->company_status == "ACTIVE") {
+            } elseif ($status->company_status == "ACTIVE") {
                 $status->company_status = "INACTIVE";
                 $status->save();
             }
             return back();
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
-        }   
+        }
     }
     public function company_profile($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             $company = DB::table('tic_company')
-                       ->join('users','tic_company.cloud_id','users.cloud_id')
-                       ->join('tic_company_agreements','tic_company.company_id','tic_company_agreements.company_id')
-                       ->where('tic_company.company_id',$id)
-                       ->select('tic_company.*','users.name as user_name','users.profile_image','tic_company_agreements.agreement_file','tic_company_agreements.file_size','tic_company_agreements.file_ext','tic_company_agreements.agreement_file_name')
-                       ->first();
-            $company_logs = CompanyHistory::where('company_id',$id)->get();
+                ->join('users', 'tic_company.cloud_id', 'users.cloud_id')
+                ->join('tic_company_agreements', 'tic_company.company_id', 'tic_company_agreements.company_id')
+                ->where('tic_company.company_id', $id)
+                ->select('tic_company.*', 'users.name as user_name', 'users.profile_image', 'tic_company_agreements.agreement_file', 'tic_company_agreements.file_size', 'tic_company_agreements.file_ext', 'tic_company_agreements.agreement_file_name')
+                ->first();
+            $company_logs = CompanyHistory::where('company_id', $id)->get();
             //dd($company_logs);
-            return view('admin.pages.client.view_company_profile',compact('company','company_logs'));
-        }
-        else{
+            return view('admin.pages.client.view_company_profile', compact('company', 'company_logs'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function contacts()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             $contacts = DB::table('tic_company_contacts')
-                        ->join('tic_company','tic_company_contacts.company_id','=','tic_company.company_id')
-                        ->where('tic_company.cloud_id',Auth::user()->cloud_id)
-                        ->select('tic_company_contacts.*','tic_company.client_name','tic_company.logo')
-                        ->get();
-                        //dd($contacts);
-            return view('admin.pages.client.contact',compact('contacts'));
-        }
-        else{
+                ->join('tic_company', 'tic_company_contacts.company_id', '=', 'tic_company.company_id')
+                ->where('tic_company.cloud_id', Auth::user()->cloud_id)
+                ->select('tic_company_contacts.*', 'tic_company.client_name', 'tic_company.logo')
+                ->get();
+            //dd($contacts);
+            return view('admin.pages.client.contact', compact('contacts'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
-        
     }
     public function add_contacts()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.client.add_contact');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function add_contacts_post(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             //dd($request->client_id);
             $phone = "";
             $email = "";
-            $this->validate($request, [
-                
-            ]);
+            $this->validate($request, []);
 
-            if(is_array($request->phone)){
-                $phone = implode(',',$request->phone);
+            if (is_array($request->phone)) {
+                $phone = implode(',', $request->phone);
             }
 
-            if(is_array($request->email)){
-                $email = implode(',',$request->email);
+            if (is_array($request->email)) {
+                $email = implode(',', $request->email);
             }
 
             Contact::create(
@@ -5976,55 +6034,51 @@ class AdminController extends Controller
                     'twitter' => $request->twitter,
                     'linkedin' => $request->linkedin,
                     'instagram' => $request->instagram,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
-            return redirect(url('/contacts'))->with('successcontact','contacts Added Successfully.');
-        }
-        else{
+            return redirect(url('/contacts'))->with('successcontact', 'contacts Added Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function edit_contacts($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $contact = Contact::where('contact_id',$id)->first();
-            return view('admin.pages.client.edit_contact',compact('contact'));
-        }
-        else{
+        if (Auth::check()) {
+            $contact = Contact::where('contact_id', $id)->first();
+            return view('admin.pages.client.edit_contact', compact('contact'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    public function edit_contacts_post(Request $request,$id)
+    public function edit_contacts_post(Request $request, $id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            
+        if (Auth::check()) {
+
             // dd($request->all());
             $phone = "";
             $email = "";
-            $this->validate($request, [
-                
-            ]);
+            $this->validate($request, []);
 
-            if(is_array($request->phone)){
-                $phone = implode(',',$request->phone);
+            if (is_array($request->phone)) {
+                $phone = implode(',', $request->phone);
             }
 
-            if(is_array($request->email)){
-                $email = implode(',',$request->email);
+            if (is_array($request->email)) {
+                $email = implode(',', $request->email);
             }
 
-            Contact::where('contact_id',$id)->update(
+            Contact::where('contact_id', $id)->update(
                 [
                     'cloud_id' => Auth::user()->cloud_id,
                     'company_id' => $request->client_id,
@@ -6039,81 +6093,75 @@ class AdminController extends Controller
                     'twitter' => $request->twitter,
                     'linkedin' => $request->linkedin,
                     'instagram' => $request->instagram,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
-            return redirect(url('/contacts'))->with('success','contacts Updated Successfully.');
-
-        }
-        else{
+            return redirect(url('/contacts'))->with('success', 'contacts Updated Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function delete_contacts()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            
-        }
-        else{
+        if (Auth::check()) {
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function location()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
 
             $locations = DB::table('tic_company_locations')
-                        ->join('tic_company','tic_company_locations.company_id','=','tic_company.company_id')
-                        ->join('z_config_city','tic_company_locations.country','z_config_city.loc_id')
-                        ->join('z_config_city as state','tic_company_locations.state','state.loc_id')
-                        ->where('tic_company.cloud_id',Auth::user()->cloud_id)
-                        ->select('tic_company_locations.*','tic_company.client_name','tic_company.logo','z_config_city.loc_name as country_name','state.loc_name as state_name')
-                        ->get();
-                        // dd($locations);
-            return view('admin.pages.client.location',compact('locations'));
-        }
-        else{
+                ->join('tic_company', 'tic_company_locations.company_id', '=', 'tic_company.company_id')
+                ->join('z_config_city', 'tic_company_locations.country', 'z_config_city.loc_id')
+                ->join('z_config_city as state', 'tic_company_locations.state', 'state.loc_id')
+                ->where('tic_company.cloud_id', Auth::user()->cloud_id)
+                ->select('tic_company_locations.*', 'tic_company.client_name', 'tic_company.logo', 'z_config_city.loc_name as country_name', 'state.loc_name as state_name')
+                ->get();
+            // dd($locations);
+            return view('admin.pages.client.location', compact('locations'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function add_location()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.client.add_location');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function getState_addLocation($country_id)
     {
-        $data= DB::table('z_config_city')
-                         ->where('z_config_city.parent_country_id',$country_id)
-                         ->where('z_config_city.parent_state_id',0)
-                         ->get(["z_config_city.loc_name","z_config_city.loc_id"]);
+        $data = DB::table('z_config_city')
+            ->where('z_config_city.parent_country_id', $country_id)
+            ->where('z_config_city.parent_state_id', 0)
+            ->get(["z_config_city.loc_name", "z_config_city.loc_id"]);
         return $data;
     }
     public function add_location_post(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             // dd($request->all());
-            
+
 
             Location::create(
                 [
@@ -6125,26 +6173,25 @@ class AdminController extends Controller
                     'address' => $request->address,
                     'postcode' => $request->postcode,
                     'state' => $request->state,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
-            return redirect(url('/location'))->with('successlocation','Location Added Successfully.');
-        }
-        else{
+            return redirect(url('/location'))->with('successlocation', 'Location Added Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function add_location_ajax(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-           $add_location = Location::create(
+        if (Auth::check()) {
+            $add_location = Location::create(
                 [
                     'company_id' => $request->client_id,
                     'cloud_id' => Auth::user()->cloud_id,
@@ -6154,42 +6201,39 @@ class AdminController extends Controller
                     'address' => $request->address,
                     'postcode' => $request->postcode,
                     'state' => $request->state,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
-            $get_update_location = Location::where('cloud_id',Auth::user()->cloud_id)->get();
-        return $get_update_location;
-
-           
-        }
-        else{
+            $get_update_location = Location::where('cloud_id', Auth::user()->cloud_id)->get();
+            return $get_update_location;
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    public function edit_locations($id){
-        if(Session::has('locked-screen')){
+    public function edit_locations($id)
+    {
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $location = Location::where('location_id',$id)->first();
-            return view('admin.pages.client.edit_location',compact('location'));
-        }
-        else{
+        if (Auth::check()) {
+            $location = Location::where('location_id', $id)->first();
+            return view('admin.pages.client.edit_location', compact('location'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    public function edit_location_post(Request $request,$id){
-        if(Session::has('locked-screen')){
+    public function edit_location_post(Request $request, $id)
+    {
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $this->validate($request, [
-            ]);
+        if (Auth::check()) {
+            $this->validate($request, []);
 
-            Location::where('location_id',$id)->update(
+            Location::where('location_id', $id)->update(
                 [
                     'company_id' => $request->client_id,
                     'cloud_id' => $request->cloud_id,
@@ -6199,27 +6243,25 @@ class AdminController extends Controller
                     'address' => $request->address,
                     'postcode' => $request->postcode,
                     'state' => $request->state,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
-            return redirect(url('/location'))->with('success','Location Updated Successfully.');
-        }   
-        else{
+            return redirect(url('/location'))->with('success', 'Location Updated Successfully.');
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
-    public function delete_location(){
-        if(Session::has('locked-screen')){
+    public function delete_location()
+    {
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            
-        }
-        else{
+        if (Auth::check()) {
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
@@ -6228,34 +6270,32 @@ class AdminController extends Controller
     // |--------------------------------------------------------------------------
     public function setting()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.setting.setting');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
-    }  
+    }
     public function manage_account(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.setting.manage_acc');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function manage_account_post(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             //dd($request->all());
 
             TicCloud::create(
@@ -6286,57 +6326,55 @@ class AdminController extends Controller
                     'GDPR_status_granted' => $request->GDPR_status_granted,
                     'expiry_duration' => $request->expiry_duration,
                     'privacy_policy_url' => $request->privacy_policy_url,
-                    'date'=>today_date(),
-                    'time'=>today_time(),
-                    'ip'=>get_client_ip(),
-                    'browser'=>get_client_browser(),
+                    'date' => today_date(),
+                    'time' => today_time(),
+                    'ip' => get_client_ip(),
+                    'browser' => get_client_browser(),
                 ]
             );
 
             return back();
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
-    } 
+    }
     // |--------------------------------------------------------------------------
     // | Side Menu Setting Manage Users Functions
     // |--------------------------------------------------------------------------
     public function manage_users(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $users = User::where('cloud_id',Auth::user()->cloud_id)->get();
+        if (Auth::check()) {
+            $users = User::where('cloud_id', Auth::user()->cloud_id)->get();
             //dd($users);
-            return view('admin.pages.setting.manage_user',compact('users'));
-        }
-        else{
+            return view('admin.pages.setting.manage_user', compact('users'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function manage_users_post(Request $request)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             //dd($request->all());
             $profile_image_url = "";
 
             if (request()->hasFile('profile_image')) {
                 $file = request()->file('profile_image');
-                $fileName =time() . "." . $file->getClientOriginalExtension();
-                $profile_image_url =url('/user_profile_image/'.time() . "." . $file->getClientOriginalExtension());
-                $file->move('./user_profile_image/', $fileName);    
+                $fileName = time() . "." . $file->getClientOriginalExtension();
+                $profile_image_url = url('/user_profile_image/' . time() . "." . $file->getClientOriginalExtension());
+                $file->move('./user_profile_image/', $fileName);
             }
 
             User::create(
                 [
                     'cloud_id' => Auth::user()->cloud_id,
                     'compay_id' => "",
-                    'name' => $request->first_name.' '.$request->last_name,
+                    'name' => $request->first_name . ' ' . $request->last_name,
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
                     'email' => $request->email,
@@ -6347,34 +6385,31 @@ class AdminController extends Controller
                 ]
             );
             return back();
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function view_user_profile($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $user = User::where('id',$id)->first();
-            return view('admin.pages.setting.view_profile',compact('user'));
-        }
-        else{
+        if (Auth::check()) {
+            $user = User::where('id', $id)->first();
+            return view('admin.pages.setting.view_profile', compact('user'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function edit_user_profile($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $user = User::where('id',$id)->first();
-            return view('admin.pages.setting.edit_profile',compact('user'));
-        }
-        else{
+        if (Auth::check()) {
+            $user = User::where('id', $id)->first();
+            return view('admin.pages.setting.edit_profile', compact('user'));
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
@@ -6383,13 +6418,12 @@ class AdminController extends Controller
     // |--------------------------------------------------------------------------
     public function manage_notification()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.setting.notification');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
@@ -6398,13 +6432,12 @@ class AdminController extends Controller
     // |--------------------------------------------------------------------------
     public function manage_template()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.setting.email_template');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
@@ -6413,26 +6446,25 @@ class AdminController extends Controller
     // |--------------------------------------------------------------------------
     public function manage_role()
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             return view('admin.pages.setting.roles');
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     // |--------------------------------------------------------------------------
     // | Side Menu Client Modal
     // |--------------------------------------------------------------------------
-    public function agreement_modal_post(Request $request,$id)
+    public function agreement_modal_post(Request $request, $id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-    
+        if (Auth::check()) {
+
             $fileSize = "";
             $ext = "";
             $file_name = "";
@@ -6440,18 +6472,18 @@ class AdminController extends Controller
 
             if ($request->hasFile('agreement_file')) {
                 $file = $request->file('agreement_file');
-                
+
                 $ext = $file->getClientOriginalExtension();
                 $fileSize = $request->file('agreement_file')->getSize();
                 $filename = $file->getClientOriginalName();
-                $fileurl =url('public/contract/'.$filename);
-                $basename = basename($filename, "." . $ext); 
+                $fileurl = url('public/contract/' . $filename);
+                $basename = basename($filename, "." . $ext);
                 //dd($fileurl);
-                $new_file_name = Str::random(10)."_".str_replace('-', '_', today_date())."_".str_replace(":","",str_replace(' ', '', today_time()))  . "." . $ext;
+                $new_file_name = Str::random(10) . "_" . str_replace('-', '_', today_date()) . "_" . str_replace(":", "", str_replace(' ', '', today_time()))  . "." . $ext;
                 $file->move(public_path('contract'), $new_file_name);
             }
 
-            $company_agreement = Client::where('company_id',$id)->update([
+            $company_agreement = Client::where('company_id', $id)->update([
                 'file' => $basename,
                 'contract_start' => $request->contract_start,
                 'contract_end'  => $request->contract_end,
@@ -6470,97 +6502,88 @@ class AdminController extends Controller
                         'agreement_file_name' => $basename,
                         'file_size' => $file_size_mb,
                         'file_ext' => $ext,
-                        'date'=>today_date(),
-                        'time'=>today_time(),
-                        'ip'=>get_client_ip(),
-                        'browser'=>get_client_browser(),
+                        'date' => today_date(),
+                        'time' => today_time(),
+                        'ip' => get_client_ip(),
+                        'browser' => get_client_browser(),
                     ]
                 );
             }
 
             return back();
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
-        
         }
     }
     public function company_modal($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $data = Client::where('company_id',$id)->first();
+        if (Auth::check()) {
+            $data = Client::where('company_id', $id)->first();
             return $data;
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function location_modal($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             $data = DB::table('tic_company_locations')
-                    ->join('tic_company','tic_company_locations.company_id','=','tic_company.company_id')
-                    ->join('z_config_city','tic_company_locations.country','z_config_city.loc_id')
-                    ->join('z_config_city as state','tic_company_locations.state','state.loc_id')
-                    ->where('tic_company_locations.location_id',$id)
-                    ->select('tic_company_locations.*','tic_company.logo','z_config_city.loc_name as country_name','state.loc_name as state_name')
-                    ->first();
+                ->join('tic_company', 'tic_company_locations.company_id', '=', 'tic_company.company_id')
+                ->join('z_config_city', 'tic_company_locations.country', 'z_config_city.loc_id')
+                ->join('z_config_city as state', 'tic_company_locations.state', 'state.loc_id')
+                ->where('tic_company_locations.location_id', $id)
+                ->select('tic_company_locations.*', 'tic_company.logo', 'z_config_city.loc_name as country_name', 'state.loc_name as state_name')
+                ->first();
             return $data;
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
-        
         }
     }
     public function contact_modal($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $data = Contact::where('contact_id',$id)->first();
+        if (Auth::check()) {
+            $data = Contact::where('contact_id', $id)->first();
             return $data;
-        }
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
-        
         }
     }
     public function agreement_modal($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
-            $data = Client::where('company_id',$id)->first();
+        if (Auth::check()) {
+            $data = Client::where('company_id', $id)->first();
             return $data;
-        }   
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }
     public function get_agreement_modal($id)
     {
-        if(Session::has('locked-screen')){
+        if (Session::has('locked-screen')) {
             return AdminController::lock_screen();
         }
-        if(Auth::check()){
+        if (Auth::check()) {
             // $data = CompanyAgreement::where('company_id',$id)->first();
             $data = DB::table('tic_company_agreements')
-                    ->join('tic_company','tic_company_agreements.company_id','tic_company.company_id')
-                    ->select('tic_company_agreements.*','tic_company.logo','tic_company.client_name','tic_company_agreements.agreement_file_name')
-                    ->where('tic_company_agreements.company_id',$id)
-                    ->first();
-                    
+                ->join('tic_company', 'tic_company_agreements.company_id', 'tic_company.company_id')
+                ->select('tic_company_agreements.*', 'tic_company.logo', 'tic_company.client_name', 'tic_company_agreements.agreement_file_name')
+                ->where('tic_company_agreements.company_id', $id)
+                ->first();
+
             return $data;
-        }   
-        else{
+        } else {
             return redirect("login")->withSuccess('You are not allowed to access');
         }
     }

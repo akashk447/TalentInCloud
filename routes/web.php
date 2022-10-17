@@ -92,6 +92,8 @@ Route::get('remove-candidate/{canid}',[AdminController::class,'remove_candidate'
 Route::get('drop-candidate/{canid}',[AdminController::class,'drop_candidate'])->name('drop_candidate');
 
 Route::post('upload-resume',[AdminController::class,'upload_resume'])->name('upload_resume');
+Route::post('update-resume-screening',[AdminController::class,'update_resume_screening'])->name('update_resume_screening');
+Route::post('update-resume-screening-ajax',[AdminController::class,'update_resume_screening_ajax'])->name('update_resume_screening_ajax');
 // |--------------------------------------------------------------------------
 // | Call Candidates Modal Request Web Routes  
 // |--------------------------------------------------------------------------
